@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>To-Do List</title>
+        <link rel="stylesheet" type="text/css" href="css/index.css"/>
+        <script type="text/javascript" language="JavaScript">
+
+
+            var todoArray = [];
+
+            /** ska implementeras */
+            function createNewToDo() {
+                // create a prompt that gives one input filed and the title To-Do
+                // skapa en dialog med ett tomt fält och en rubrik där det står "To-Do";
+
+                // fortsätt endast om användaren trykte ok och att användaren skrev något i fältet.
+
+                // skapa en ToDo och rendera tabellen med todos åter igen
+
+                // koden nedan är endast demo
+                var todo = new ToDo("hejsan" + todoArray.length);
+                todoArray.push(todo);
+                renderTableOfTodos();
+
+            }
+
+               /**Ska implementeras*/
+            function viewSelectedRow(todo) {
+                // skapa en alert och skicka med texten som finns i todo:n.
+            }
+
+               // delete the selected row
+            function deleteTodo(todo) {
+                // ta bort alla todos i arrayen vars namn överensstämmer med todon som man klickat på.
+
+                // rendera den nya tabellen
+
+                // spara undan listan
+            }
+
+
+            function onStart() {
+                loadToDoList();
+                renderTableOfTodos(todoArray);
+            }
+
+
+            // add the strike-through styling to completed tasks
+            function checkboxClicked(todo,checkbox) {
+                todo.setChecked(checkbox.checked);
+                renderTableOfTodos();
+                saveToDoList();
+            }
+
+         
+
+         
+            // remove completed tasks
+            function removeCompletedTasks() {
+                todoArray = todoArray.filter(function(td){
+                    return !td.isChecked();
+                });
+                // save the to-do list
+                renderTableOfTodos();
+                saveToDoList();
+             
+                alert("Completed Tasks Were Removed Successfully.");
+            }
+
+            
+            function renderTableOfTodos() {
+                deleteAllRows();
+                todoArray.forEach(function(todo){
+                    addTableRow(todo, true);
+                });
+            }
+
+            function loadToDoList() {
+                var theList = JSON.parse(window.localStorage.getItem("todoList"));
+                if(theList) {
+                    theList.forEach(function(raw) {
+                        var todo = new ToDo(raw.text);
+                        todo.setChecked(raw.checked);
+                        todoArray.push(todo);
+                    });
+                }
+            }
+
+            // save the to-do list
+            function saveToDoList() {
+                window.localStorage.setItem("todoList", JSON.stringify(todoArray));
+            }
+
+                        // delete all the rows
+            function deleteAllRows() {
+                var table = document.getElementById("dataTable");
+                var rowCount = table.rows.length;
+             
+                // loop through all rows of the table
+                for(var i = 0; i < rowCount; i++)
+                {
+                    // delete the row
+                    table.deleteRow(i);
+                    rowCount--;
+                    i--;
+                }
+                // save the to-do list
+                saveToDoList();
+            }
+
+              // add a row to the table
+            function addTableRow(todo, appIsLoading) {
+                var table = document.getElementById("dataTable");
+                var rowCount = table.rows.length;
+                var row = table.insertRow(rowCount);
+             
+                // create the checkbox
+                var cell1 = row.insertCell(0);
+                var element1 = document.createElement("input");
+                element1.type = "checkbox";
+                element1.name = "chkbox[]";
+                element1.checked = todo.isChecked();
+                element1.onclick = function(){
+                    checkboxClicked(todo,this);
+                };
+                cell1.appendChild(element1);
+             
+                // create the textbox
+                var cell2 = row.insertCell(1);
+                var element2 = document.createElement("input");
+                element2.type = "text";
+                element2.name = "txtbox[]";
+                element2.size = 16;
+                element2.value = todo.getText();
+                element2.setAttribute("onchange", "saveToDoList()");
+                cell2.appendChild(element2);
+                if(todo.isChecked() === true) {
+                    element2.style.setProperty("text-decoration", "line-through");
+                } else {
+                     element2.style.setProperty("text-decoration", "none");
+                }
+
+
+                // create the view button
+                var cell3 = row.insertCell(2);
+                var element3 = document.createElement("input");
+                element3.type = "button";
+                element3.value = "View";
+                element3.onclick = function() {
+                    viewSelectedRow(todo);
+                };
+                cell3.appendChild(element3);
+             
+                // create the delete button
+                var cell4 = row.insertCell(3);
+                var element4 = document.createElement("input");
+                element4.type = "button";
+                element4.value = "Delete";
+                element4.onclick  = function(){
+                    deleteTodo(todo);
+                };
+                cell4.appendChild(element4);
+                saveToDoList();
+             
+                if (!appIsLoading) alert("Task Added Successfully.");
+            }
+
+            function ToDo(text) {
+                this.text = text;
+                this.checked = false;
+            }
+            ToDo.prototype.isChecked = function() {
+                return this.checked === true;
+            };
+            ToDo.prototype.setChecked = function(isChecked)  {
+                this.checked = isChecked;
+            };
+            ToDo.prototype.getText = function()  {
+                return this.text;
+            };
+            ToDo.prototype.setText = function(text)  {
+                this.text = text;
+            };
+ 
+        </script>
+    </head>
+    <body onload="onStart()">
+        <div class="wrapper">
+            <a><input class="m-btn green" type="button" value="Add To-Do" onclick="createNewToDo()"/></a>
+            <a><input  class="m-btn red" type="button" value="Remove Completed Tasks" onclick="removeCompletedTasks()"/></a>
+        </div>
+        <table id="dataTable" class="CSSTableGenerator"  cellspacing="0" cellpadding="0" width="100%" border="1">
+
+        </table>
+    </body>
+</html>
